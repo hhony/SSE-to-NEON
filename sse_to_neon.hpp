@@ -1,20 +1,22 @@
-//
-//  sse_to_neon.hpp
-//  neon_test
-//
-//  Created by Tim Oberhauser on 11/16/13.
-//  Copyright (c) 2013 Tim Oberhauser. All rights reserved.
-//
+/**********************************************************
+ *  sse_to_neon.hpp
+ *  Adapted for use on ARMv7 with ROS 03/16/2015
+ *
+ *  Created by Tim Oberhauser on 11/16/13.
+ *  Copyright (c) 2013 Tim Oberhauser. All rights reserved.
+ *
+ **********************************************************/
 
-#ifndef neon_test_sse_to_neon_hpp
-#define neon_test_sse_to_neon_hpp
+#ifndef sse_to_neon_hpp
+#define sse_to_neon_hpp
 
 #include <arm_neon.h>
 
-#if defined(__MM_MALLOC_H)
+#ifndef __MM_MALLOC_H // on armv7 these intrinsics do not exist
+//
 // copied from mm_malloc.h {
+//
 #include <stdlib.h>
-
 /* We can't depend on <stdlib.h> since the prototype of posix_memalign
  may not be visible.  */
 #ifndef __cplusplus
@@ -22,9 +24,7 @@ extern int posix_memalign (void **, size_t, size_t);
 #else
 extern "C" int posix_memalign (void **, size_t, size_t) throw ();
 #endif
-
-static __inline void *
-_mm_malloc (size_t size, size_t alignment)
+static inline void *_mm_malloc (size_t size, size_t alignment)
 {
     void *ptr;
     if (alignment == 1)
@@ -36,13 +36,13 @@ _mm_malloc (size_t size, size_t alignment)
     else
         return NULL;
 }
-
-static __inline void
-_mm_free (void * ptr)
+static inline void _mm_free (void * ptr)
 {
     free (ptr);
 }
+//
 // } copied from mm_malloc.h
+//
 #endif
 
 
@@ -178,8 +178,5 @@ inline __m128i _mm_unpackhi_epi8(__m128i a, const __m128i dummy_zero){
     uint8x8_t* a_low = reinterpret_cast<uint8x8_t*>(&a);
     return reinterpret_cast<__m128i>(vmovl_u8(a_low[1]));
 }
-
-
-
 
 #endif
